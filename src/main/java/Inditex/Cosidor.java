@@ -1,38 +1,31 @@
 package Inditex;
 
-public class Cosidor {
+public class Cosidor extends  Thread {
 
     private String pieza;
     private Cistell cistell;
+    private int tmp;
 
 
-    public Cosidor(Cistell c, String pieza) {
-        cistell = c;
+    public Cosidor( Cistell cistell, String pieza) {
         this.pieza = pieza;
+        this.cistell = cistell;
+        tmp=0;
     }
 
-    public Cosidor() {
-        super();
-    }
-
-    public void start(){
-        if (pieza.equals("Maniga") && !cistell.cistellManiguesPle){
-            for (int i = 1; i < cistell.numero_max+1; i++) {
-                cistell.setNumeroManigues(i);
-//                System.out.println("Mangas Actuales "+cistell.getNumeroManigues());
+    @Override
+    public void run() {
+        for (;;){
+            if (cistell != null) cistell.cosir();
+            tmp = (int) ((Math.random() * 4000) + 4000);
+            System.out.println(pieza + ": s'esta cosint...");
+            try {
+                Thread.sleep(tmp);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            if (cistell.getNumeroManigues() == cistell.numero_max){
-                cistell.setCistellManiguesPle(true);
-            }
-
-        }else if(pieza.equals("Cos") && !cistell.cistellCossosPle){
-            for (int i = 1; i < cistell.numero_max+1; i++) {
-                cistell.setNumeroCossos(i);
-//                System.out.println("Cuerpos Actuales "+cistell.getNumeroCossos());
-            }
-            if (cistell.getNumeroCossos() == cistell.numero_max){
-                cistell.setCistellCossosPle(true);
-            }
+            if (cistell != null) cistell.deixar();
+            System.out.println(pieza + " deixa el cistell...hay " + cistell.cantidadActual + ".");
         }
     }
 }

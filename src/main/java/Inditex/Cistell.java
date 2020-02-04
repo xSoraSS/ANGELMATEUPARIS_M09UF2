@@ -1,102 +1,45 @@
 package Inditex;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-
 public class Cistell {
 
-    int numero_max, numeroManigues, numeroCossos;
-    boolean cistellManiguesPle, cistellCossosPle, hiHaManigues, hiHaCossos;
+    boolean coser = false;
+    int cantidadMaxima,  cantidadActual;
+    String tipo;
 
-    public Cistell(int numMax) {
-        this.numero_max = numMax;
-        hiHaCossos = false;
-        hiHaManigues = false;
-        cistellCossosPle = false;
-        cistellManiguesPle = false;
+    public Cistell(int cantMax, String tipo) {
+        this.cantidadMaxima = cantMax;
+        this.cantidadActual =0;
+        this.tipo = tipo;
     }
 
-    public int getNumeroManigues() {
-        return numeroManigues;
-    }
-
-    public void setNumeroManigues(int numeroManigues) {
-        this.numeroManigues = numeroManigues;
-    }
-
-    public int getNumeroCossos() {
-        return numeroCossos;
-    }
-
-    public void setNumeroCossos(int numeroCossos) {
-        this.numeroCossos = numeroCossos;
-    }
-
-    public boolean isCistellManiguesPle() {
-        return cistellManiguesPle;
-    }
-
-    public void setCistellManiguesPle(boolean cistellManiguesPle) {
-        this.cistellManiguesPle = cistellManiguesPle;
-    }
-
-    public boolean isCistellCossosPle() {
-        return cistellCossosPle;
-    }
-
-    public void setCistellCossosPle(boolean cistellCossosPle) {
-        this.cistellCossosPle = cistellCossosPle;
-    }
-
-    public synchronized int agafaManiga(int i) {
-        System.out.println("vull agafar");
+    public synchronized void cosir() {
         try {
-            while(cistellManiguesPle || !hiHaManigues) wait();
-            cistellManiguesPle = true;
-            this.numeroManigues = this.numeroManigues - i;
-            System.out.println("Agafo "+i+" galetes");
-            if(this.numeroManigues <= 0) hiHaManigues = false;
-            cistellManiguesPle = false;
+            while (coser) wait();
+            coser = false;
             notifyAll();
-        } catch (Exception e) {
-            e.getStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        return numeroManigues;
     }
 
-    public synchronized int agafaCos(int i) {
-        System.out.println("vull agafar");
+    public synchronized void deixar() {
         try {
-            while(cistellCossosPle || !hiHaCossos) wait();
-            cistellCossosPle = true;
-            this.numeroCossos = this.numeroCossos - i;
-            System.out.println("Agafo "+i+" galetes");
-            if(this.numeroCossos <= 0) hiHaCossos = false;
-            cistellCossosPle = false;
+            while (cantidadActual == cantidadMaxima) wait();
+            cantidadActual++;
             notifyAll();
-        } catch (Exception e) {
-            e.getStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        return numeroCossos;
+        notifyAll();
     }
 
-    public static void main(String[] args) throws InterruptedException {
-        Ensamblador ensamblador = new Ensamblador();
-        // Crea un pool de 2 fils
-        final ScheduledExecutorService schExService = Executors.newScheduledThreadPool(3);
-        // Crea objecte Runnable.
-
-
-        // Programa Fil, s'inicia als 2 segons i després es va executant cada 3 segons
-        schExService.scheduleWithFixedDelay(ensamblador., 2, 3, TimeUnit.SECONDS);
-
-        // Espera per acabar 35 segons
-        schExService.awaitTermination(30, TimeUnit.SECONDS);
-
-        // shutdown .
-        schExService.shutdownNow();
-        System.out.println("Completat");
-
+    public synchronized void agafar () {
+        try {
+            while (cantidadActual == 0 ) wait();
+            cantidadActual--;
+            notifyAll();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
